@@ -68,3 +68,8 @@ Thumbs.db
 
 # YOLOv8
 runs/
+
+# pickle files
+*.pkl
+
+
