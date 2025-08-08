@@ -14,7 +14,7 @@ import face_recognition
 import numpy as np
 from user_data_utils.registration import *
 
-def auto_login(manager, threshold=0.55):
+def auto_login(manager,draw, threshold=0.55):
     users = manager.load_users()
 
     if len(users) == 0:
@@ -35,6 +35,8 @@ def auto_login(manager, threshold=0.55):
 
     cap = cv2.VideoCapture(1)
     matched_user = None
+
+    start_time = time.time()
 
     while True:
         ret, frame = cap.read()
@@ -58,20 +60,23 @@ def auto_login(manager, threshold=0.55):
                 matched_user = users[known_ids[min_idx]]
                 print(f"[INFO] Logged in as {matched_user.name}")
 
+                if draw:
                 # Draw welcome box
-                top, right, bottom, left = face_location
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
-                cv2.putText(frame, f"Welcome {matched_user.name}", (left, top - 10),
-                            cv2.FONT_HERSHEY_PLAIN, 1.4, (255, 255, 255), 2)
-            else:
-                top, right, bottom, left = face_location
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 255), 1)
-                cv2.putText(frame, "Unknown", (left, top - 10),
-                            cv2.FONT_HERSHEY_PLAIN, 1.2, (255, 255, 255), 2)
+                    top, right, bottom, left = face_location
+                    cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 2)
+                    cv2.putText(frame, f"Welcome {matched_user.name}", (left, top - 10),
+                                cv2.FONT_HERSHEY_PLAIN, 1.4, (255, 255, 255), 2)
+                else:
+                    top, right, bottom, left = face_location
+                    cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 255), 1)
+                    cv2.putText(frame, "Unknown", (left, top - 10),
+                                cv2.FONT_HERSHEY_PLAIN, 1.2, (255, 255, 255), 2)
 
         # Resize and show
-        frame = cv2.resize(frame, (0, 0), fx=0.35, fy=0.35)
         cv2.imshow('Login', frame)
+
+        if time.time() - start_time > 3:
+            break
 
         # Only quit if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q'):
