@@ -14,12 +14,15 @@ def reg_user(draw = True):
     
     '''
 
+    found = False
 
     manager = userManager()
-    identified = auto_login(manager, draw)
+    matched_user = auto_login(manager, draw)
     
-    if identified:
+    if matched_user:
         print('User identified')
+        name = matched_user.name
+        found = True
         # return manager.users, manager.logged_in_user.name
     else:
         name, email = get_user_info()
@@ -44,3 +47,5 @@ def reg_user(draw = True):
             user_id = manager.email_to_id[email]
             user = manager.users[user_id]
             print(f"[INFO] User {user.name} already registered.")
+
+    return found, name
