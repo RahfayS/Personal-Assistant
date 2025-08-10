@@ -30,12 +30,18 @@ class TrackHands(Detection):
         # Returns a results object containing information about landmarks (position coords)
         results = self.hands.process(frame)
 
+        hand_label = None
+
         if results.multi_hand_landmarks:
             # Iterate through all 21 landmarks for each hand detected
-            for hands in results.multi_hand_landmarks:
+            for hands,handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
                 # Iterate through each landmark position getting their corresponding id
                 for id, lm in enumerate(hands.landmark):
                     # get frame dimensions
+
+                    # Get the handedness of the hand detected in the frame
+                    hand_label = handedness.classification[0].label
+
                     h, w, c = frame.shape
 
                     cx, cy = int(lm.x * w), int(lm.y * h)
@@ -45,4 +51,4 @@ class TrackHands(Detection):
                     if draw:
                         self.mp_drawing.draw_landmarks(frame, hands, self.mp_hands.HAND_CONNECTIONS)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        return frame, landmarks
+        return frame, landmarks, hand_label
