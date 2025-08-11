@@ -1,11 +1,9 @@
 import cv2
-from face_detection_utils.detection import *
-from face_detection_utils.get_photos import *
-from user_data_utils.registration import *
-from gesture_control.volume_controller import VolumeController
-from gesture_control.hand_tracker import TrackHands
-from gesture_control.closed_fist import ClosedFist
-from gesture_control.gesture_utils import *
+from face_detection_utils import face_detection, get_photos
+from volume_controller import VolumeController
+from hand_tracker import TrackHands
+from closed_fist import ClosedFist
+from gesture_utils import *
 from frame_utils.preprocess import *
 from frame_utils.draw_text import *
 
