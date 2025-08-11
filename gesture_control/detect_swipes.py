@@ -4,26 +4,30 @@ import time
 
 class DetectSwipes(TrackHands):
 
-    def __init__(self, channels, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,threshold = 300):
+    def __init__(self, channels, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,threshold = 2.5, window = 5, maxlen = 15, cooldown = 2):
         super().__init__(mode, complexity, min_detection_confidence, min_tracking_confidence, max_num_hands)
 
         self.channels = channels
-        self.cords = deque(maxlen=15)
-        self.frame_window = 5
+        self.cords = deque(maxlen=maxlen)
+        self.frame_window = window
         self.channel_idx = 0
         self.last_detection_time = 0
         self.swipe_thresh = threshold
+        self.cooldown = cooldown
 
-    def detect_swipe(self, frame, draw = False, cooldown = 3):
+    def detect_swipe(self, frame, draw = False):
         
         frame, landmarks, hand_label = self.detect_hands(frame, draw)
 
         if len(landmarks) == 0:
             return self.channels[self.channel_idx], self.channel_idx
         
-        index = landmarks[8]
+        index_tip = landmarks[8]
+        pinky_mcp, index_mcp = landmarks[17], landmarks[5]
 
-        index_pos = [index[1], index[2]]
+        palm_width = abs(pinky_mcp[1] - index_mcp[1])
+
+        index_pos = [index_tip[1], index_tip[2]]
 
         self.cords.append(index_pos)
 
@@ -46,7 +50,7 @@ class DetectSwipes(TrackHands):
 
         curr = time.time()
 
-        if abs(dx) > self.swipe_thresh and (curr - self.last_detection_time) >= cooldown:
+        if abs(dx) > palm_width * self.swipe_thresh and (curr - self.last_detection_time) >= self.cooldown:
             self.last_detection_time = time.time()
             if hand_label == 'Right':
                 self.channel_idx = (self.channel_idx - 1) % len(self.channels)
@@ -57,3 +61,10 @@ class DetectSwipes(TrackHands):
             self.cords.clear()       
     
         return self.channels[self.channel_idx], self.channel_idx
+
+
+        
+
+    
+
+
