@@ -1,7 +1,5 @@
 import cv2
 import os
-import face_recognition
-from face_detection_utils.detection import detect_faces, preprocess_frame
 import time
 
 def get_screenshots(name):
