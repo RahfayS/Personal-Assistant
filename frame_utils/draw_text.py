@@ -27,6 +27,16 @@ def put_text_top_left(frame, text, font = cv2.FONT_HERSHEY_SIMPLEX, font_scale =
     frame = cv2.putText(frame, text, (x, y), font, font_scale, color, thickness)
     return frame
 
+def channel_overlay(frame, modes, mode_idx, current):
+    max_idx = len(modes) - 1
 
+    next_idx = (mode_idx + 1) % len(modes)
+    prev_idx = (mode_idx - 1) % len(modes)
+
+    cv2.putText(frame, f'Current Mode: {current}', (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),2)
+    cv2.putText(frame, f'Next Mode: {modes[next_idx]}', (1000, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),2)
+    cv2.putText(frame, f'Previous Mode: {modes[prev_idx]}', (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0),2)
+
+    
 
 
