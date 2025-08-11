@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp 
 import subprocess
-from .detection import Detection
+from .gesture_detection import Detection
 import math
 
 

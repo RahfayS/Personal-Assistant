@@ -1,10 +1,9 @@
-import cv2
 from face_detection_utils.face_detection import *
 from face_detection_utils.get_photos import *
 from face_detection_utils.encodings import get_encodings
 from face_detection_utils.auto_login import auto_login
 from user_data_utils.registration import *
-from gesture_control.gesture_utils import *
+from gesture_control.gesture_detection import *
 
 def reg_user(draw = True):
 
