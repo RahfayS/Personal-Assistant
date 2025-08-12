@@ -19,6 +19,9 @@ class VolumeController:
         self.display_until = 0
 
     def change_volume(self, frame, landmarks):
+        '''
+        Detects a pinch, if a pinch is detected an average distance is calculated serving as the slider for volume control
+        '''
         distance = self.get_distance(frame, landmarks)
 
         if self.state == "WAITING_FOR_PINCH":
@@ -42,7 +45,6 @@ class VolumeController:
 
         elif self.state == "WAITING_FOR_RELEASE":
             if distance > self.PINCH_THRESHOLD:
-                print("PINCH RELEASED")
                 self.state = "WAITING_FOR_PINCH"
         if self.display_message and time.time() < self.display_until:
             frame = put_text_top_right(frame, self.display_message)
@@ -50,6 +52,9 @@ class VolumeController:
         return frame
 
     def get_distance(self, frame, landmarks, draw=True):
+        '''
+        Takes landmarks array and return distance between index tip and thumb tip
+        '''
         lm_1, lm_2 = landmarks[4], landmarks[8]
         _, x1, y1 = lm_1
         _, x2, y2 = lm_2
@@ -68,16 +73,22 @@ class VolumeController:
         return distance
 
     def get_current_volume(self,length):
+        '''
+        Takes the current length and returns the volume percentage
+        '''
 
         length = 0 if length < self.MIN_DISTANCE else min(length,self.MAX_DISTANCE)
         vol_percent = (length / self.MAX_DISTANCE) * 100
+        # Ensure volume is with [0,100]
+        vol_percent = max(0,min(vol_percent, 100))
 
         return vol_percent
 
     def set_volume(self, length):
-
-        length = 0 if length < self.MIN_DISTANCE else min(length,self.MAX_DISTANCE)
-        vol_percent = (length / self.MAX_DISTANCE) * 100
+        '''
+        Takes the current length and sets the volume
+        '''
+        vol_percent = self.get_current_volume(length)
         subprocess.run(["osascript", "-e", f"set volume output volume {vol_percent}"])
         self.last_vol = vol_percent
         return int(self.last_vol)
