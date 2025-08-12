@@ -1,18 +1,7 @@
 import cv2
 import face_recognition
-import numpy as np
 from user_data_utils.registration import *
 import time
-import cv2
-import face_recognition
-import numpy as np
-from user_data_utils.registration import *
-import time
-
-import cv2
-import face_recognition
-import numpy as np
-from user_data_utils.registration import *
 
 def auto_login(manager,draw, threshold=0.55):
     users = manager.load_users()

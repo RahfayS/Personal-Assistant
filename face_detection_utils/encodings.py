@@ -1,7 +1,6 @@
 import cv2
 import face_recognition
 import os
-import pickle
 import numpy as np
 
 
