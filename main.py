@@ -1,6 +1,6 @@
 from user_flow.auth import reg_user
-from gesture_control.gesture_main import gestures
-from get_mode.get_mode_channel import get_channel
+from gesture_detection.base import gestures
+from channel_management.get_mode_channel import get_channel
 
 def main():
     found, name = reg_user()
