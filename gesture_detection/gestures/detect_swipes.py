@@ -1,4 +1,4 @@
-from .hand_tracker import TrackHands
+from .base import TrackHands
 from collections import deque
 import time
 
@@ -17,9 +17,9 @@ class DetectSwipes(TrackHands):
 
     def detect_swipe(self, frame, draw = False):
         
-        frame, landmarks, hand_label = self.detect_hands(frame, draw)
+        landmarks, hand_label = self.detect_hands(frame, draw)
 
-        if len(landmarks) == 0:
+        if landmarks is None:
             return self.channels[self.channel_idx], self.channel_idx
         
         index_tip = landmarks[8]
