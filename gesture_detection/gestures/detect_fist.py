@@ -23,13 +23,10 @@ class DetectFist(TrackHands):
         self.fist_closed = False
         self.count = 0
     
-    def is_fist_closed(self,frame):
+    def is_fist_closed(self,frame,landmarks,hand_label):
         '''
         Take a frame and detect if a fist is closed
         '''
-
-        landmarks, hand_label = self.detect_hands(frame)
-
         if landmarks is None:
             return frame, None
         
@@ -39,7 +36,7 @@ class DetectFist(TrackHands):
 
         # Calculate the width of the palm, to normalize the distances between landmarks
         wrist,pinky_mcp = landmarks[0],landmarks[17]
-        palm_width = math.hypot(wrist[1] - pinky_mcp[1],wrist[2], pinky_mcp[2])
+        palm_width = math.hypot(wrist[1] - pinky_mcp[1],wrist[2] - pinky_mcp[2])
         
 
         angles,distances = self.find_distances_angles(finger_mcps,finger_pips,palm_width,hand_label)
@@ -47,7 +44,7 @@ class DetectFist(TrackHands):
 
         if all(self.MIN_ANGLE_THRESHOLD < angle < self.MAX_ANGLE_THRESHOLD for angle in angles) and all(self.MIN_DISTANCE_THRESHOLD < distance < self.MAX_DISTANCE_THRESHOLD for distance in distances):
             self.count += 1
-
+            print(self.count)
             # If the 10 consecutive frames meet the thesholds, the fist is closed
             if self.count == 10:
                 self.fist_closed = True

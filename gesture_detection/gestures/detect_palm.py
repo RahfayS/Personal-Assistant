@@ -26,11 +26,10 @@ class DetectPalm(TrackHands):
     
         
 
-    def is_palm_open(self,frame):
+    def is_palm_open(self,frame,landmarks):
         '''
         Take a frame and detect if a palm is open
         '''
-        landmarks, hand_label = self.detect_hands(frame)
 
         if landmarks is None:
             return frame, None
@@ -48,7 +47,7 @@ class DetectPalm(TrackHands):
             return frame, self.palm_open
     
         # If all angles meet the thresholds, a palm is detected
-        if all(self.MIN_ANGLE_THRESH <=angle<= self.MAX_ANGLE_THRESH for angle in angles) and  all(tip > mcp for tip,mcp in zip(finger_tips,finger_mcps)):
+        if all(self.MIN_ANGLE_THRESH <=angle<= self.MAX_ANGLE_THRESH for angle in angles) and  all(tip[2] < mcp[2] for tip,mcp in zip(finger_tips,finger_mcps)):
             self.last_detection_time = time.time()
             self.count += 1
 

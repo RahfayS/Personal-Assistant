@@ -29,12 +29,10 @@ class VolumeController(TrackHands):
         self.display_message = None
         self.display_until = 0
 
-    def change_volume(self, frame):
+    def change_volume(self, frame, landmarks):
         '''
         Detects a pinch, if a pinch is detected an average distance is calculated serving as the slider for volume control
         '''
-
-        landmarks, hand_label = self.detect_hands(frame)
 
         if landmarks is None:
             return frame
