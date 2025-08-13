@@ -1,91 +1,87 @@
 import cv2
 import math
-import subprocess
-import time
+from .base import TrackHands
 
-class DetectFist():
+class DetectFist(TrackHands):
 
-    def __init__(self):
-        self.last_update_time = 0
+    MIN_ANGLE_THRESHOLD = 165
+    MAX_ANGLE_THRESHOLD = 185
+
+    MIN_DISTANCE_THRESHOLD = 0.15
+    MAX_DISTANCE_THRESHOLD = 0.30
+
+    def __init__(self, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,last_detection_time = 0):
+        super().__init__(
+            mode=mode,
+            complexity=complexity,
+            min_detection_confidence=min_detection_confidence,
+            min_tracking_confidence=min_tracking_confidence,
+            max_num_hands=max_num_hands,
+            last_detection_time = last_detection_time
+        )
+
+        self.fist_closed = False
         self.count = 0
-        self.last_detection_time = 0
     
+    def is_fist_closed(self,frame):
+        '''
+        Take a frame and detect if a fist is closed
+        '''
+
+        landmarks, hand_label = self.detect_hands(frame)
+
+        if landmarks is None:
+            return frame, None
         
-    def closed_fist(self,frame,landmarks,hand_label):
+        # get the landmarks for pip, mcps
+        finger_pips = [landmarks[6], landmarks[10], landmarks[14]]
+        finger_mcps = [landmarks[5], landmarks[9], landmarks[13]]
 
-        # Use the width of the palm as a standard unit of measurement
-
-        wrist, pinky_mcp = landmarks[0], landmarks[17]
-
-            # Get the coords of the landmarks
-        wrist_x, wrist_y = wrist[1], wrist[2]
-        pinky_x, pinky_y = pinky_mcp[1], pinky_mcp[2]
-
-        # We will use for standard unit of measurement
-        width_x = (pinky_x - wrist_x)
-        width_y = (pinky_y - wrist_y)
-
-        width_angle = math.atan2(width_y, width_x)
-
-        # Now lets compare some key landmarks relative to palm width
-        index_mcp, middle_mcp, ring_mcp, pinky_mcp, = landmarks[5], landmarks[9], landmarks[13], landmarks[17]
-        index_pip, middle_pip, ring_pip, pinky_pip = landmarks[6], landmarks[10], landmarks[14], landmarks[19]
-
-        # Find the arc tangent of index_mcp and index_pip
-
-        index_angle = self.calculate_atan(index_mcp,index_pip,width_angle,hand_label)
-        middle_angle = self.calculate_atan(middle_mcp,middle_pip,width_angle,hand_label)
-        ring_angle = self.calculate_atan(ring_mcp,ring_pip,width_angle,hand_label)
-        pinky_angle = self.calculate_atan(pinky_mcp,pinky_pip,width_angle,hand_label)
-
-        angles = [index_angle, middle_angle, ring_angle, pinky_angle]
-
-        isPaused = self.play_or_pause(angles,frame)
-
-        return isPaused
-    
-    def calculate_atan(self,lm_1, lm_2,width_angle,hand_label):
-        angle = math.atan2(lm_1[2] - lm_2[2], lm_1[1] - lm_2[1])
-        angle = math.degrees(angle - width_angle)
-
-        # Noramlize the angle so that it is within [0-360)
-        angle = (angle + 360) % 360
-
-        # Convert the angle if the left hand is in frame
-        if hand_label == 'Left':
-            angle = (360 - angle) % angle
+        # Calculate the width of the palm, to normalize the distances between landmarks
+        wrist,pinky_mcp = landmarks[0],landmarks[17]
+        palm_width = math.hypot(wrist[1] - pinky_mcp[1],wrist[2], pinky_mcp[2])
         
-        return angle
-        
-    def play_or_pause(self, angles, frame):
-        MIN = 70
-        MAX = 95
 
-        curr = time.time()
+        angles,distances = self.find_distances_angles(finger_mcps,finger_pips,palm_width,hand_label)
 
-        if self.count != 0:
-            cv2.putText(frame, f'Pausing... {self.count}/3', (150, 70), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
 
-        if curr - self.last_detection_time > 3:
+        if all(self.MIN_ANGLE_THRESHOLD < angle < self.MAX_ANGLE_THRESHOLD for angle in angles) and all(self.MIN_DISTANCE_THRESHOLD < distance < self.MAX_DISTANCE_THRESHOLD for distance in distances):
+            self.count += 1
+
+            # If the 10 consecutive frames meet the thesholds, the fist is closed
+            if self.count == 10:
+                self.fist_closed = True
+        else:
             self.count = 0
+            self.fist_closed = False
+        
+        return frame, self.fist_closed
+    
+    def find_distances_angles(self,mcps,pips,width,hand_label):
+        '''
+        Takes the finger landmarks, calculates the arctan of two landmarks, returning the angle in degrees and getting the normalized distance between landmarks
+        '''
+        angles = []
+        distances = []
+        for pip, mcp in zip(pips, mcps):
 
-        for angle in angles:
-            if MIN < angle < MAX and (curr - self.last_update_time >= 1.5):
-                self.count += 1
-                self.last_update_time = curr
-                self.last_detection_time = curr
+            pip_x, pip_y = pip[1], pip[2]
+            mcp_x, mcp_y = mcp[1], mcp[2]
 
-                if self.count == 3:
-                    app = self.check_app()
-                    if app in ['Safari', 'Google Chrome']:
-                        browser = app
+            if hand_label == 'Left':
+                pip_x = -pip_x
+                mcp_x = -mcp_x
+            
+            angle = math.degrees(math.atan2(pip_y - mcp_y, pip_x - mcp_x))
+            angle = (angle + 360) % 360  # normalize to 0–360
+            angles.append(angle)
 
-                        applescript = f'''
-                            tell application "{browser}"
-                                do JavaScript "var video=document.querySelector('video'); if(video) {{ video.paused ? video.play() : video.pause(); }}" in front document
-                            end tell
-                            '''                              
-                        subprocess.run(["osascript", "-e", applescript])
+            distances.append((math.hypot(mcp_x - pip_x, mcp_y - pip_y)/width)) # normalize relative to palm widths
 
-                    return True,app
-        return False, None
+
+        return angles,distances
+
+    
+
+
+
