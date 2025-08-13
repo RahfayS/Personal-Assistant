@@ -1,5 +1,5 @@
 from user_flow.auth import reg_user
-from gesture_detection.base import gestures
+from gesture_detection.media_channel import media_channel
 from channel_management.get_mode_channel import get_channel
 
 def main():
@@ -14,7 +14,7 @@ def main():
                 pass
             case 'Media':
                 print(f'CURRENT MODE: {channel}')
-                gestures()
+                media_channel()
                 pass
 
 
