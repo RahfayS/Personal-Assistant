@@ -39,6 +39,12 @@ def media_channel():
 
         display_frame = frame_rgb.copy()
 
+        display_frame, closed_fist = fist_tracker.is_fist_closed(display_frame)
+
+        if closed_fist:
+            print('FIST DETECTED')
+            break
+
         display_frame = vc.change_volume(display_frame)
 
         
