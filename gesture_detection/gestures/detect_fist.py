@@ -2,9 +2,8 @@ import cv2
 import math
 import subprocess
 import time
-import pyautogui
 
-class ClosedFist():
+class DetectFist():
 
     def __init__(self):
         self.last_update_time = 0

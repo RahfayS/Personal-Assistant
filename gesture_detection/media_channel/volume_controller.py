@@ -4,12 +4,23 @@ import subprocess
 import time
 from collections import deque
 from frame_utils.draw_text import put_text_top_right
-class VolumeController:
+from ..gestures.base import TrackHands
+
+class VolumeController(TrackHands):
+
     PINCH_THRESHOLD = 50
     MIN_DISTANCE = 50
     MAX_DISTANCE = 450
 
-    def __init__(self, maxlen=50):
+    def __init__(self, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,last_detection_time = 0,maxlen = 50):
+        super().__init__(
+            mode=mode,
+            complexity=complexity,
+            min_detection_confidence=min_detection_confidence,
+            min_tracking_confidence=min_tracking_confidence,
+            max_num_hands=max_num_hands,
+            last_detection_time = last_detection_time
+        )
         self.last_vol = -1
         self.state = "WAITING_FOR_PINCH"  # or COLLECTING_FRAMES / WAITING_FOR_RELEASE
         self.maxlen = maxlen
@@ -18,14 +29,21 @@ class VolumeController:
         self.display_message = None
         self.display_until = 0
 
-    def change_volume(self, frame, landmarks):
+    def change_volume(self, frame):
         '''
         Detects a pinch, if a pinch is detected an average distance is calculated serving as the slider for volume control
         '''
+
+        landmarks, hand_label = self.detect_hands(frame)
+
+        if landmarks is None:
+            return frame
+
+
         distance = self.get_distance(frame, landmarks)
 
         if self.state == "WAITING_FOR_PINCH":
-            if distance < self.PINCH_THRESHOLD and (time.time() - self.last_pinch_time) > 0.5:
+            if distance < self.PINCH_THRESHOLD and (time.time() - self.last_pinch_time) > 3.5:
                 self.state = "COLLECTING_FRAMES"
                 self.avg_len.clear()
                 self.last_pinch_time = time.time()
