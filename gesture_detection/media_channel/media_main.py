@@ -15,6 +15,7 @@ def media_channel():
     fist_tracker = DetectFist()
     media_speech = MediaCommands()
     palm = DetectPalm()
+    hand_tracker = TrackHands()
 
     last_trigger_time = 0
 
@@ -39,26 +40,25 @@ def media_channel():
 
         display_frame = frame_rgb.copy()
 
-        display_frame, closed_fist = fist_tracker.is_fist_closed(display_frame)
+        landmarks, hand_label = hand_tracker.detect_hands(frame_rgb)
+
+        display_frame, closed_fist = fist_tracker.is_fist_closed(display_frame,landmarks,hand_label)
 
         if closed_fist:
-            print('FIST DETECTED')
             break
 
-        display_frame = vc.change_volume(display_frame)
+        display_frame = vc.change_volume(display_frame,landmarks)
 
-        
-        display_frame, palm_open = palm.is_palm_open(display_frame)
+        display_frame, palm_open = palm.is_palm_open(display_frame,landmarks)
 
         if palm_open and (time.time() - last_trigger_time) > 1:
             toggle_play_pause()
             last_trigger_time = time.time()
         
 
-        # Calculate FPS
+        # Calculate FPS and display
         fps, prev_time = get_fps(prev_time)
         display_frame = put_text_top_left(display_frame, f'FPS: {int(fps)}')
-        # Show frame
 
         display_frame = cv2.cvtColor(display_frame,cv2.COLOR_RGB2BGR)
         cv2.imshow('Gesture Detection', display_frame)
