@@ -1,9 +1,8 @@
 import cv2
-import mediapipe as mp
 import math
 import subprocess
 import time
-from frame_utils.draw_text import put_text_top_right
+import pyautogui
 
 class ClosedFist():
 
@@ -13,7 +12,7 @@ class ClosedFist():
         self.last_detection_time = 0
     
         
-    def close_app(self,frame,landmarks,hand_label):
+    def closed_fist(self,frame,landmarks,hand_label):
 
         # Use the width of the palm as a standard unit of measurement
 
@@ -42,9 +41,9 @@ class ClosedFist():
 
         angles = [index_angle, middle_angle, ring_angle, pinky_angle]
 
-        isClosed,prev,count = self.closed_fist(angles,frame)
+        isPaused = self.play_or_pause(angles,frame)
 
-        return isClosed
+        return isPaused
     
     def calculate_atan(self,lm_1, lm_2,width_angle,hand_label):
         angle = math.atan2(lm_1[2] - lm_2[2], lm_1[1] - lm_2[1])
@@ -58,17 +57,15 @@ class ClosedFist():
             angle = (360 - angle) % angle
         
         return angle
-
-    def closed_fist(self,angles,frame):
-
-        # Range of angles the will be accepted for mcp/pip relative angle
+        
+    def play_or_pause(self, angles, frame):
         MIN = 70
         MAX = 95
 
         curr = time.time()
 
         if self.count != 0:
-            cv2.putText(frame,f'Exiting... {self.count}/3',(150,70), cv2.FONT_HERSHEY_SIMPLEX,2,(255,255,255), 2)
+            cv2.putText(frame, f'Pausing... {self.count}/3', (150, 70), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2)
 
         if curr - self.last_detection_time > 3:
             self.count = 0
@@ -79,9 +76,17 @@ class ClosedFist():
                 self.last_update_time = curr
                 self.last_detection_time = curr
 
-
-                # If angle is maintained for 3 frames we wil then exit
                 if self.count == 3:
-                    return True, self.last_update_time,self.count
-        return False,self.last_update_time,self.count
+                    app = self.check_app()
+                    if app in ['Safari', 'Google Chrome']:
+                        browser = app
 
+                        applescript = f'''
+                            tell application "{browser}"
+                                do JavaScript "var video=document.querySelector('video'); if(video) {{ video.paused ? video.play() : video.pause(); }}" in front document
+                            end tell
+                            '''                              
+                        subprocess.run(["osascript", "-e", applescript])
+
+                    return True,app
+        return False, None
