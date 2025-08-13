@@ -7,8 +7,8 @@ class DetectFist(TrackHands):
     MIN_ANGLE_THRESHOLD = 165
     MAX_ANGLE_THRESHOLD = 185
 
-    MIN_DISTANCE_THRESHOLD = 0.15
-    MAX_DISTANCE_THRESHOLD = 0.30
+    MIN_DISTANCE_THRESHOLD = 0.5
+    MAX_DISTANCE_THRESHOLD = 0.75
 
     def __init__(self, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,last_detection_time = 0):
         super().__init__(
@@ -46,7 +46,7 @@ class DetectFist(TrackHands):
             self.count += 1
             print(self.count)
             # If the 10 consecutive frames meet the thesholds, the fist is closed
-            if self.count == 10:
+            if self.count == 5:
                 self.fist_closed = True
         else:
             self.count = 0
