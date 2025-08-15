@@ -1,8 +1,10 @@
-from face_detection_utils.face_detection import *
-from face_detection_utils.get_photos import *
-from face_detection_utils.encodings import get_encodings
-from face_detection_utils.auto_login import auto_login
-from user_data_utils.registration import *
+from face.face_detection import *
+from face.get_photos import *
+from face.encodings import get_encodings
+from face.auto_login import auto_login
+from user.registration import *
+
+
 def reg_user(draw = True):
 
     '''
@@ -13,7 +15,7 @@ def reg_user(draw = True):
 
     found = False
 
-    manager = userManager()
+    manager = UserManager()
     matched_user = auto_login(manager, draw)
     
     if matched_user:
@@ -24,7 +26,7 @@ def reg_user(draw = True):
     else:
         name, email = get_user_info()
         # Load users from disk
-        users = manager.load_users()
+        users = manager.load()
         print(users)
 
         if email not in manager.email_to_id:
@@ -39,7 +41,8 @@ def reg_user(draw = True):
                 print('[ERROR] failed to extract face encodings')
                 return
             user.encoding = encoding
-            manager.save_users()
+            manager.save()
+            found = True
         else:
             user_id = manager.email_to_id[email]
             user = manager.users[user_id]
