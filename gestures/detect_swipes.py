@@ -1,4 +1,4 @@
-from .base import TrackHands
+from gestures.base import TrackHands
 from collections import deque
 import time
 

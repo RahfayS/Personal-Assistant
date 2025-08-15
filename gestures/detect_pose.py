@@ -1,6 +1,6 @@
-import cv2
 import mediapipe as mp
-from ..gestures.base import Detection
+from gestures.base import Detection
+
 
 class DetectPose(Detection):
 

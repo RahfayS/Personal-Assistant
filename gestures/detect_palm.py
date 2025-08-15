@@ -1,4 +1,4 @@
-from ..gestures.base import TrackHands
+from gestures.base import TrackHands
 import time
 import math
 import cv2

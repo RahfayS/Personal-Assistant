@@ -1,6 +1,5 @@
-import cv2
 import math
-from .base import TrackHands
+from gestures.base import TrackHands
 
 class DetectFist(TrackHands):
 
