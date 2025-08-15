@@ -3,31 +3,24 @@ import math
 import subprocess
 import time
 from collections import deque
-from frame_utils.draw_text import put_text_top_right
-from ..gestures.base import TrackHands
+from utils.draw_text import put_text_top_right
 
-class VolumeController(TrackHands):
+
+class VolumeController():
 
     PINCH_THRESHOLD = 50
     MIN_DISTANCE = 50
     MAX_DISTANCE = 450
 
-    def __init__(self, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,last_detection_time = 0,maxlen = 50):
-        super().__init__(
-            mode=mode,
-            complexity=complexity,
-            min_detection_confidence=min_detection_confidence,
-            min_tracking_confidence=min_tracking_confidence,
-            max_num_hands=max_num_hands,
-            last_detection_time = last_detection_time
-        )
+    def __init__(self,maxlen = 50, last_pinch_time = 0, display_until = 0):
+
         self.last_vol = -1
-        self.state = "WAITING_FOR_PINCH"  # or COLLECTING_FRAMES / WAITING_FOR_RELEASE
+        self.state = "WAITING_FOR_PINCH"
         self.maxlen = maxlen
         self.avg_len = deque(maxlen=maxlen)
-        self.last_pinch_time = 0
+        self.last_pinch_time = last_pinch_time
         self.display_message = None
-        self.display_until = 0
+        self.display_until = display_until
 
     def change_volume(self, frame, landmarks):
         '''

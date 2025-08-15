@@ -2,14 +2,14 @@ import cv2
 import threading
 from .volume_controller import VolumeController
 from .mute_control import MuteControl
-from ..gestures.base import TrackHands
-from ..gestures.detect_fist import DetectFist
-from ..gestures.detect_palm import DetectPalm
-from ..gestures.detect_pose import DetectPose
+from gestures.base import TrackHands
+from gestures.detect_fist import DetectFist
+from gestures.detect_palm import DetectPalm
+from gestures.detect_pose import DetectPose
 from .playback_control import toggle_play_pause
-from frame_utils.preprocess import *
-from frame_utils.draw_text import *
-from speech_commands.media_commands import MediaCommands
+from utils.preprocess import *
+from utils.draw_text import *
+from speech.media_commands import MediaCommands
 
 def media_main():
 
