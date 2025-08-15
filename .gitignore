@@ -71,5 +71,5 @@ runs/
 
 # pickle files
 *.pkl
-
+encodings
 
