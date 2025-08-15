@@ -1,6 +1,6 @@
-from user_flow.auth import reg_user
-from gesture_detection.media_channel_utils.media_main import media_main
-from channel_management.get_mode_channel import get_channel
+from user.auth import reg_user
+from media.media_main import media_main
+from utils.get_channel import get_channel
 
 def main():
     found, name = reg_user()
