@@ -2,9 +2,6 @@ import face_recognition
 import cv2
 import numpy as np
 
-
-
-
 def preprocess_frame(frame):
     '''
     Takes in a frame and process it by converting to rgb which is needed for haarcascade functions

@@ -1,12 +1,14 @@
 import cv2
 import face_recognition
-from user_data_utils.registration import *
+from user.registration import *
 import time
 
 def auto_login(manager,draw, threshold=0.55):
-    users = manager.load_users()
 
-    if len(users) == 0:
+    users = manager.load()
+    print(users)
+
+    if users is None:
         print('[WARN] No users found.')
         return None
 
