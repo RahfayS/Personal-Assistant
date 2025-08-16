@@ -12,7 +12,7 @@ class VolumeController():
     MIN_DISTANCE = 50
     MAX_DISTANCE = 450
 
-    def __init__(self,maxlen = 50, last_pinch_time = 0, display_until = 0):
+    def __init__(self,maxlen = 20, last_pinch_time = 0, display_until = 0):
 
         self.last_vol = -1
         self.state = "WAITING_FOR_PINCH"
@@ -46,7 +46,7 @@ class VolumeController():
             current_vol = self.get_current_volume(distance)
             self.show_msg(f'CURRENT VOL:{int(current_vol)} %', duration=1)
             if len(self.avg_len) >= self.maxlen:
-                recent_len = list(self.avg_len)[-20:] # Get the last 20 lengths in the deque
+                recent_len = list(self.avg_len)[-5:] # Get the last 20 lengths in the deque
                 avg_len = sum(recent_len) / len(recent_len)
                 vol = self.set_volume(avg_len)
                 self.show_msg(f'VOLUME SET: {vol}', duration=3)
@@ -56,7 +56,7 @@ class VolumeController():
             if distance > self.PINCH_THRESHOLD:
                 self.state = "WAITING_FOR_PINCH"
         if self.display_message and time.time() < self.display_until:
-            frame = put_text_top_right(frame, self.display_message)
+            put_text_top_right(frame, self.display_message)
 
         return frame
 
