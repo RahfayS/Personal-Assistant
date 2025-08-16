@@ -6,7 +6,6 @@ import time
 def auto_login(manager,draw, threshold=0.55):
 
     users = manager.load()
-    print(users)
 
     if users is None:
         print('[WARN] No users found.')
