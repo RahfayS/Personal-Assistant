@@ -25,6 +25,8 @@ def media_main():
     last_trigger_time = 0
     last_fist_time = 0
 
+    off_screen = False
+
 
     FIRST_IGNORE_TIME = 1
 
@@ -75,6 +77,17 @@ def media_main():
 
         # Detect the pose of the user, to identify some key facial landmarks to mute system volume
         pose_landmarks = pose.detect_pose(display_frame,draw = False)
+
+        if pose_landmarks is None:
+            if not off_screen:
+                off_screen = True
+                toggle_play_pause()
+        else:
+            if off_screen:
+                toggle_play_pause()
+            off_screen = False
+
+
         mute_control.mute_app(display_frame, hand_landmarks, pose_landmarks,draw=False)
 
         # Calculate FPS and display
