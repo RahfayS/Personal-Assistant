@@ -1,6 +1,7 @@
 import math
 from gestures.base import TrackHands
-
+import cv2
+import time
 class DetectFist(TrackHands):
 
     MIN_ANGLE_THRESHOLD = 165
@@ -19,6 +20,7 @@ class DetectFist(TrackHands):
             last_detection_time = last_detection_time
         )
 
+        self.fist_detected = False
         self.fist_closed = False
         self.count = 0
     
@@ -27,7 +29,7 @@ class DetectFist(TrackHands):
         Take a frame and detect if a fist is closed
         '''
         if landmarks is None:
-            return frame, None
+            return None, None
         
         # get the landmarks for pip, mcps
         finger_pips = [landmarks[6], landmarks[10], landmarks[14]]
@@ -43,7 +45,10 @@ class DetectFist(TrackHands):
 
         if all(self.MIN_ANGLE_THRESHOLD < angle < self.MAX_ANGLE_THRESHOLD for angle in angles) and all(self.MIN_DISTANCE_THRESHOLD < distance < self.MAX_DISTANCE_THRESHOLD for distance in distances):
             self.count += 1
-            print(self.count)
+            self.fist_detected = True
+            cv2.putText(frame, f'Exiting... {self.count} / 5', (1000, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0,0,0), 2)
+
+
             # If the 10 consecutive frames meet the thesholds, the fist is closed
             if self.count == 5:
                 self.fist_closed = True
@@ -51,7 +56,7 @@ class DetectFist(TrackHands):
             self.count = 0
             self.fist_closed = False
         
-        return frame, self.fist_closed
+        return self.fist_closed, self.fist_detected
     
     def find_distances_angles(self,mcps,pips,width,hand_label):
         '''
