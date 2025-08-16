@@ -27,7 +27,6 @@ def reg_user(draw = True):
         name, email = get_user_info()
         # Load users from disk
         users = manager.load()
-        print(users)
 
         if email not in manager.email_to_id:
             user = manager.register_user(name, email)
