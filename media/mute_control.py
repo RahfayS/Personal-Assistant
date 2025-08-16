@@ -14,20 +14,27 @@ class MuteControl():
             return
         # Assign Key Landmarks for shush gesture
         index_tip = hand_landmarks[8]
+        _, index_x, index_y = index_tip
+
         nose = pose_landmarks[0]
+        _, nose_x, nose_y = nose
 
         # Mouth corner landmarks
-        left_corner,right_corner = pose_landmarks[9], pose_landmarks[10]
+        mouth_right, mouth_left = pose_landmarks[9], pose_landmarks[10]
+        _, mouth_left_x, mouth_left_y = mouth_left
+        _, mouth_right_x, mouth_right_y = mouth_right
+
+        mouth_y = (mouth_left_y + mouth_right_y) // 2
 
         if draw:
-            cv2.circle(frame,(nose[1],nose[2]),2,(0,255,0),2)
-            cv2.circle(frame,(index_tip[1],index_tip[2]),2,(255,0,0),2)
-            cv2.line(frame,(left_corner[1],left_corner[2]),(right_corner[1],right_corner[2]),(0,0,255),2)
-        
-        if left_corner[2] > index_tip[2] > nose[2]:
-            self.count += 1
+            cv2.circle(frame,(index_x,index_y), 5, (0,255,255),2)
+            cv2.circle(frame,(nose_x,nose_y),5,(255,0,0),2)
+            cv2.line(frame,(mouth_left[1],mouth_left[2]),(mouth_right[1], mouth_right[2]),(0,255,0),2)
 
-            if self.count == 5:
+            
+        if mouth_y > index_y > nose_y and mouth_left_x <= index_x <= mouth_right_x:
+            self.count += 1
+            if self.count == 3:
                 subprocess.run(["osascript", "-e", "set volume output muted true"])
                 print('APP MUTED')
         else:
