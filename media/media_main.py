@@ -1,7 +1,7 @@
 import cv2
 import threading
-from .volume_controller import VolumeController
-from .mute_control import MuteControl
+from media.volume_controller import VolumeController
+from media.mute_control import MuteControl
 from gestures.base import TrackHands
 from gestures.detect_fist import DetectFist
 from gestures.detect_palm import DetectPalm
@@ -23,15 +23,19 @@ def media_main():
     mute_control = MuteControl()
 
     last_trigger_time = 0
+    last_fist_time = 0
 
 
+    FIRST_IGNORE_TIME = 1
+
+    '''
     def listen_for_speech():
         while True:
             media_speech.media_commands()
             time.sleep(0.5)
     
     threading.Thread(target=listen_for_speech,daemon=True).start()
-
+    '''
     prev_time = 0
     cap = cv2.VideoCapture(1)
 
@@ -43,13 +47,19 @@ def media_main():
 
         frame_rgb = preprocess(frame)
 
+        if frame_rgb is None:
+            break
+
         display_frame = frame_rgb.copy()
 
         # Get the hand landmarks for all gestures
         hand_landmarks, hand_label = hand_tracker.detect_hands(frame_rgb)
 
+        current_time = time.time()
+
         # Detect a fist, if a fist is detected break from webcam
-        display_frame, closed_fist = fist_tracker.is_fist_closed(display_frame,hand_landmarks,hand_label)
+        closed_fist, fist_detected = fist_tracker.is_fist_closed(display_frame,hand_landmarks,hand_label)
+
         if closed_fist:
             break
 
@@ -61,14 +71,15 @@ def media_main():
         if palm_open and (time.time() - last_trigger_time) > 1:
             toggle_play_pause()
             last_trigger_time = time.time()
-        
+
+
         # Detect the pose of the user, to identify some key facial landmarks to mute system volume
-        pose_landmarks = pose.detect_pose(frame)
-        mute_control.mute_app(frame, hand_landmarks, pose_landmarks)
-        
+        pose_landmarks = pose.detect_pose(display_frame,draw = False)
+        mute_control.mute_app(display_frame, hand_landmarks, pose_landmarks,draw=False)
+
         # Calculate FPS and display
         fps, prev_time = get_fps(prev_time)
-        display_frame = put_text_top_left(display_frame, f'FPS: {int(fps)}')
+        put_text_top_left(display_frame, f'FPS: {int(fps)}')
 
         display_frame = cv2.cvtColor(display_frame,cv2.COLOR_RGB2BGR)
         cv2.imshow('Gesture Detection', display_frame)
