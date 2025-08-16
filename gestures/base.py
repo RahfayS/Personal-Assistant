@@ -36,6 +36,8 @@ class TrackHands(Detection):
         results = self.hands.process(frame_rgb)
 
         hand_label = None
+        
+        h, w, c = frame_rgb.shape
 
         if results.multi_hand_landmarks:
             # Iterate through all 21 landmarks for each hand detected
@@ -46,8 +48,6 @@ class TrackHands(Detection):
 
                     # Get the handedness of the hand detected in the frame
                     hand_label = handedness.classification[0].label
-
-                    h, w, c = frame_rgb.shape
 
                     cx, cy = int(lm.x * w), int(lm.y * h)
 
