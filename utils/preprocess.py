@@ -12,5 +12,6 @@ def preprocess(frame):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     else:
         print('[WARN] Frame empty')
+        return None
 
     return frame
