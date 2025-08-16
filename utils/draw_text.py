@@ -11,21 +11,29 @@ def get_fps(prev_time):
     return fps, prev_time
 
 
-def put_text_top_right(frame, text, font = cv2.FONT_HERSHEY_SIMPLEX, font_scale = 1, color = (0,0,0), thickness = 2, x_pad = 10, y_pad = 50):
-    (t_width, t_height), _ = cv2.getTextSize(text, font,font_scale,thickness)
+def put_text_top_left(frame, text, font=cv2.FONT_HERSHEY_SIMPLEX, scale=1, color=(255,255,255), thickness=2, margin=10):
+    x, y = margin, margin + cv2.getTextSize(text, font, scale, thickness)[0][1]
+    cv2.putText(frame, text, (x, y), font, scale, color, thickness)
 
-    x = frame.shape[1] - t_width - x_pad
-    y = t_height + x_pad
+def put_text_top_right(frame, text, font=cv2.FONT_HERSHEY_SIMPLEX, scale=1, color=(255,255,255), thickness=2, margin=10):
+    text_width = cv2.getTextSize(text, font, scale, thickness)[0][0]
+    x = frame.shape[1] - text_width - margin
+    y = margin + cv2.getTextSize(text, font, scale, thickness)[0][1]
+    cv2.putText(frame, text, (x, y), font, scale, color, thickness)
 
-    frame = cv2.putText(frame, text, (x, y), font, font_scale, color, thickness)
-    return frame
 
-def put_text_top_left(frame, text, font = cv2.FONT_HERSHEY_SIMPLEX, font_scale = 1, color = (0,0,0), thickness = 2, x_pad = 10, y_pad = 50):
-    x = x_pad
-    y = y_pad
+def put_text_bottom_left(frame, text, font=cv2.FONT_HERSHEY_SIMPLEX, scale=1, color=(255,255,255), thickness=2, margin=10):
+    text_height = cv2.getTextSize(text, font, scale, thickness)[0][1]
+    x = margin
+    y = frame.shape[0] - margin
+    cv2.putText(frame, text, (x, y), font, scale, color, thickness)
 
-    frame = cv2.putText(frame, text, (x, y), font, font_scale, color, thickness)
-    return frame
+def put_text_bottom_right(frame, text, font=cv2.FONT_HERSHEY_SIMPLEX, scale=1, color=(255,255,255), thickness=2, margin=10):
+    text_size = cv2.getTextSize(text, font, scale, thickness)[0]
+    x = frame.shape[1] - text_size[0] - margin
+    y = frame.shape[0] - margin
+    cv2.putText(frame, text, (x, y), font, scale, color, thickness)
+
 
 def channel_overlay(frame, modes, mode_idx, current):
     max_idx = len(modes) - 1
