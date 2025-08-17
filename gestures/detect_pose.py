@@ -4,7 +4,7 @@ from gestures.base import Detection
 
 class DetectPose(Detection):
 
-    def __init__(self, mode = False, complexity = 1, min_detection_confidence = 0.7, min_tracking_confidence = 0.5, last_detection_time = 0, upper_body_only = False, smooth_landmarks = True):
+    def __init__(self, mode = False, complexity = 0, min_detection_confidence = 0.7, min_tracking_confidence = 0.5, last_detection_time = 0, upper_body_only = False, smooth_landmarks = True):
         super().__init__(mode, complexity, min_detection_confidence, min_tracking_confidence, last_detection_time)
 
         self.upper_body_only = upper_body_only

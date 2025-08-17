@@ -11,7 +11,7 @@ class DetectPalm(TrackHands):
 
     FRAME_CAP = 10
 
-    def __init__(self, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,last_detection_time = 0):
+    def __init__(self, mode=False, complexity=0, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,last_detection_time = 0):
         super().__init__(
             mode=mode,
             complexity=complexity,

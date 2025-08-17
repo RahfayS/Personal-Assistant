@@ -4,7 +4,7 @@ import time
 
 class DetectSwipes(TrackHands):
 
-    def __init__(self, channels, mode=False, complexity=1, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,threshold = 2.5, window = 5, maxlen = 15, cooldown = 2):
+    def __init__(self, channels, mode=False, complexity=0, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,threshold = 2.5, window = 5, maxlen = 15, cooldown = 2):
         super().__init__(mode, complexity, min_detection_confidence, min_tracking_confidence, max_num_hands)
 
         self.channels = channels

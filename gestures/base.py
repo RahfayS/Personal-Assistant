@@ -2,7 +2,7 @@ import mediapipe as mp
 
 class Detection:
 
-    def __init__(self,mode = False, complexity = 1, min_detection_confidence = 0.7, min_tracking_confidence = 0.5,last_detection_time = 0):
+    def __init__(self,mode = False, complexity = 0, min_detection_confidence = 0.7, min_tracking_confidence = 0.5,last_detection_time = 0):
         self.mode = mode
         self.complexity = complexity
         self.min_detection_confidence = min_detection_confidence
