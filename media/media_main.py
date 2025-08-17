@@ -23,8 +23,6 @@ def media_main():
     mute_control = MuteControl()
 
     last_trigger_time = 0
-    last_fist_time = 0
-
     off_screen = False
 
 
