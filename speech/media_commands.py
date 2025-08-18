@@ -1,6 +1,7 @@
 from .channel_commands import SpeechCommands
 import wikipedia
 import webbrowser
+import subprocess
 
 class MediaCommands(SpeechCommands):
 
@@ -45,3 +46,22 @@ class MediaCommands(SpeechCommands):
             webbrowser.open('https://open.spotify.com/search/dj')
         elif 'puppy tail' in query:
             webbrowser.open('https://www.youtube.com/watch?v=-pNGrPhuZ6M')
+
+    def get_active_app(self):
+        script = '''
+        tell application "System Events"
+            set frontApp to name of first application process whose frontmost is true
+            tell application process frontApp
+                if exists (window 1) then
+                    get title of window 1
+                else
+                    return ""
+                end if
+            end tell
+        end tell
+        '''
+        try:
+            result = subprocess.check_output(['osascript', '-e', script], stderr=subprocess.DEVNULL)
+            return result.decode('utf-8').strip().lower()
+        except subprocess.CalledProcessError:
+            return None
