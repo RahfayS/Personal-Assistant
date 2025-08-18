@@ -4,23 +4,19 @@ import time
 
 class DetectSwipes(TrackHands):
 
-    def __init__(self, channels, mode=False, complexity=0, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,threshold = 2.5, window = 5, maxlen = 15, cooldown = 2):
+    def __init__(self,mode=False, complexity=0, min_detection_confidence=0.7, min_tracking_confidence=0.5, max_num_hands=1,swipe_threshold = 2.5, window = 5, maxlen = 15, cooldown = 2):
         super().__init__(mode, complexity, min_detection_confidence, min_tracking_confidence, max_num_hands)
 
-        self.channels = channels
         self.cords = deque(maxlen=maxlen)
-        self.frame_window = window
-        self.channel_idx = 0
-        self.last_detection_time = 0
-        self.swipe_thresh = threshold
+        self.swipe_thresh = swipe_threshold
         self.cooldown = cooldown
+        self.frame_window = window
+        self.swipe_detected = False
 
-    def detect_swipe(self, frame, draw = False):
+    def detect_swipe(self, frame,landmarks, hand_label, draw = False):
         
-        landmarks, hand_label = self.detect_hands(frame, draw)
-
         if landmarks is None:
-            return self.channels[self.channel_idx], self.channel_idx
+            return None,None,None
         
         index_tip = landmarks[8]
         pinky_mcp, index_mcp = landmarks[17], landmarks[5]
@@ -32,7 +28,7 @@ class DetectSwipes(TrackHands):
         self.cords.append(index_pos)
 
         if len(self.cords) < self.frame_window * 2:
-            return self.channels[self.channel_idx], self.channel_idx
+            return None,None,None
         
         x_start, x_end = 0,0
 
@@ -52,19 +48,8 @@ class DetectSwipes(TrackHands):
 
         if abs(dx) > palm_width * self.swipe_thresh and (curr - self.last_detection_time) >= self.cooldown:
             self.last_detection_time = time.time()
-            if hand_label == 'Right':
-                self.channel_idx = (self.channel_idx - 1) % len(self.channels)
-                print('RIGHT HAND SWIPE DETECTED')
-            elif hand_label == 'Left':
-                self.channel_idx = (self.channel_idx + 1) % len(self.channels)
-                print('LEFT HAND SWIPE DETECTED')
-            self.cords.clear()       
-    
-        return self.channels[self.channel_idx], self.channel_idx
-
-
-        
-
-    
-
+            self.swipe_detected = True
+            self.cords.clear()
+                 
+        return self.swipe_detected, dx, palm_width
 
