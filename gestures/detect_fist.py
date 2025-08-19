@@ -20,7 +20,6 @@ class DetectFist(TrackHands):
             last_detection_time = last_detection_time
         )
 
-        self.fist_detected = False
         self.fist_closed = False
         self.count = 0
     
@@ -29,7 +28,7 @@ class DetectFist(TrackHands):
         Take a frame and detect if a fist is closed
         '''
         if landmarks is None:
-            return None, None
+            return None
         
         # get the landmarks for pip, mcps
         finger_pips = [landmarks[6], landmarks[10], landmarks[14]]
@@ -56,7 +55,7 @@ class DetectFist(TrackHands):
             self.count = 0
             self.fist_closed = False
         
-        return self.fist_closed, self.fist_detected
+        return self.fist_closed
     
     def find_distances_angles(self,mcps,pips,width,hand_label):
         '''
