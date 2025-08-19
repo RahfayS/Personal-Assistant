@@ -14,7 +14,7 @@ class DetectPose(Detection):
         self.pose = self.mp_pose.Pose(self.mode,complexity,self.smooth_landmarks,self.upper_body_only,self.min_detection_confidence, self.min_tracking_confidence)
         self.mp_draw = mp.solutions.drawing_utils
 
-    def detect_pose(self,frame, draw = True):
+    def detect_pose(self,frame, draw = False):
         
         results = self.pose.process(frame)
 
