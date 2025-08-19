@@ -52,13 +52,12 @@ class DetectPalm(TrackHands):
             self.count += 1
 
             if self.count == self.FRAME_CAP:
-                cv2.putText(frame,f'PALM OPEN',(30,30),cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 2, (255,255,255),2)
                 self.palm_open = True
         else:
             self.count = 0
             self.palm_open = False
 
-        return frame, self.palm_open
+        return self.palm_open
     
     def find_angle(self,mcps,pips):
         '''
