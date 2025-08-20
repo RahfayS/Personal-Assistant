@@ -12,7 +12,7 @@ class VolumeController():
     MIN_DISTANCE = 50
     MAX_DISTANCE = 450
 
-    def __init__(self,maxlen = 20, last_pinch_time = 0, display_until = 0):
+    def __init__(self,maxlen = 30, last_pinch_time = 0, display_until = 0):
 
         self.last_vol = -1
         self.state = "WAITING_FOR_PINCH"
@@ -98,8 +98,11 @@ class VolumeController():
         Takes the current length and sets the volume
         '''
         vol_percent = self.get_current_volume(length)
-        subprocess.run(["osascript", "-e", f"set volume output volume {vol_percent}"])
-        self.last_vol = vol_percent
+
+        # Update volume only if change in volume is significant
+        if abs(vol_percent - self.last_vol) > 1:
+            subprocess.run(["osascript", "-e", f"set volume output volume {vol_percent}"])
+            self.last_vol = vol_percent
         return int(self.last_vol)
 
     def show_msg(self, message, duration = 2):
