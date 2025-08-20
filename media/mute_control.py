@@ -36,7 +36,6 @@ class MuteControl():
             self.count += 1
             if self.count == 3:
                 subprocess.run(["osascript", "-e", "set volume output muted true"])
-                print('APP MUTED')
         else:
             self.count = 0
     
