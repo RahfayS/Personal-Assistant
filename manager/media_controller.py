@@ -36,20 +36,11 @@ class MediaController:
         # --- Pose (Off-Screen Play/Pause)
         if gestures['pose_landmarks'] is None:
             if not self.off_screen:
-                print('Pausing')
                 toggle_play_pause()
                 self.off_screen = True
         else:
             if self.off_screen:
-                print('Pausing 2')
                 toggle_play_pause()
             self.off_screen = False
-
-        # --- Youtube Gestures --- 
-        if context == 'youtube':
-            swipe_detected, _, hand_label = gestures['swipe']
-            if swipe_detected:
-                youtube_skip(hand_label)
-        
 
         return frame
