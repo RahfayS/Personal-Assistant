@@ -24,9 +24,6 @@ def toggle_play_pause(media_manager):
                 print(f"Error pausing Spotify: {e}")
         else:
             print("No active Spotify devices to control.")
-
-    elif context == 'youtube':
-        pass
     else:
 
         '''
