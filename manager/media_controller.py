@@ -5,7 +5,7 @@ from media.mute_control import MuteControl
 from media.playback_control import toggle_play_pause
 from speech.media_commands import MediaCommands
 import logging
-
+import sys
 class MediaController:
 
     PALM_COOLDOWN = 1  # seconds
@@ -34,14 +34,13 @@ class MediaController:
         if gestures.get('hand_landmarks') is not None:
 
             if gestures and gestures.get('fist'):
-                print("Closed Fist detected, exiting...")
-                return
+                sys.exit(0)
             # --- Volume Control ---
             frame = self.vc.change_volume(frame, gestures['hand_landmarks'])
 
             # --- Palm (Play/Pause) ---
             if gestures.get('palm') and (time.time() - self.last_trigger_time) >= self.PALM_COOLDOWN:
-                toggle_play_pause()
+                toggle_play_pause(self.media_manager)
                 self.last_trigger_time = time.time()
 
             # --- Mute (Shush Gesture) ---
@@ -51,12 +50,12 @@ class MediaController:
         if gestures.get('pose_landmarks') is None:
             if not self.off_screen:
                 with self.command_lock:
-                    toggle_play_pause()
+                    toggle_play_pause(self.media_manager)
                 self.off_screen = True
         else:
             if self.off_screen:
                 with self.command_lock:
-                    toggle_play_pause()
+                    toggle_play_pause(self.media_manager)
             self.off_screen = False
 
         return frame
