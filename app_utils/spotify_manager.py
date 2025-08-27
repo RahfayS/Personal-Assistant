@@ -1,6 +1,5 @@
+from app_utils.app_manager import AppManager
 import logging
-import numpy as np
-import speech_recognition as sr
 import subprocess
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
@@ -10,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-class SpotifyManager():
+class SpotifyManager(AppManager):
 
     def __init__(self):
 
@@ -35,7 +34,7 @@ class SpotifyManager():
         else:
             devices_id = devices[0]['id']
             return devices_id
-    
+        
     def spotify_commands(self,query):
         '''Process the users query and preform commands'''
 
