@@ -1,5 +1,6 @@
 from speech.channel_commands import SpeechCommands
 from app_utils.spotify_manager import SpotifyManager
+from app_utils.youtube_manager import YoutubeManager
 import subprocess
 import webbrowser
 import threading
@@ -15,6 +16,7 @@ class MediaCommands(SpeechCommands):
 
         # --- App Managers ---
         self.spotify_manager = SpotifyManager()
+        self.youtube_manager = YoutubeManager()
         
         # --- Exit Flag ---
         self.should_exit = False
@@ -47,7 +49,7 @@ class MediaCommands(SpeechCommands):
         
         # If mode is not none, by pass getting user input
         elif self.mode == 'youtube':
-            pass
+            return self.youtube_manager.youtube_commands(query)
         elif self.mode == 'spotify':
             return self.spotify_manager.spotify_commands(query)
 
