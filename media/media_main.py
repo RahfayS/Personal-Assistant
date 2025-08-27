@@ -1,6 +1,5 @@
 import cv2, time
 import threading
-from manager.context_manager import ContextManager
 from manager.media_controller import MediaController
 from manager.gesture_manager import GestureManager
 from utils.draw_text import put_text_top_left, get_fps
@@ -9,7 +8,6 @@ from utils.preprocess import preprocess
 def media_main():
 
     # --- Init ---
-    ctx_manager = ContextManager()
     detectors = GestureManager()
     controllers = MediaController()
     prev_time = 0
@@ -25,9 +23,6 @@ def media_main():
         # Process the frame for mediapipe functions
         frame_rgb = preprocess(frame)
         display_frame = frame_rgb.copy()
-
-        # --- Context ---
-        # context = ctx_manager.update()
 
         # --- Gesture results ---
         results = detectors.process(display_frame)
