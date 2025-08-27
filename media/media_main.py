@@ -3,7 +3,6 @@ import threading
 from manager.context_manager import ContextManager
 from manager.media_controller import MediaController
 from manager.gesture_manager import GestureManager
-from speech.media_commands import MediaCommands
 from utils.draw_text import put_text_top_left, get_fps
 from utils.preprocess import preprocess
 
@@ -13,7 +12,6 @@ def media_main():
     ctx_manager = ContextManager()
     detectors = GestureManager()
     controllers = MediaController()
-
     prev_time = 0
 
     cap = cv2.VideoCapture(1)
@@ -29,13 +27,13 @@ def media_main():
         display_frame = frame_rgb.copy()
 
         # --- Context ---
-        context = ctx_manager.update()
+        # context = ctx_manager.update()
 
         # --- Gesture results ---
         results = detectors.process(display_frame)
 
         # --- Apply Action ---
-        controllers.apply(display_frame,results,context)
+        controllers.apply(display_frame,results)
 
         # --- UI ---
         fps, prev_time = get_fps(prev_time)
