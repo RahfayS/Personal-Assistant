@@ -1,67 +1,95 @@
-from .channel_commands import SpeechCommands
-import wikipedia
-import webbrowser
+from speech.channel_commands import SpeechCommands
+from app_utils.spotify_manager import SpotifyManager
 import subprocess
+import webbrowser
+import threading
+import logging
 
 class MediaCommands(SpeechCommands):
-
+    """
+    Voice-controlled media controller using Playwright.
+    Supports YouTube and Spotify with persistent Chrome profile.
+    """
     def __init__(self, pause_threshold=1):
         super().__init__(pause_threshold)
 
-    def media_commands(self):
-        query = self.take_commands()
+        # --- App Managers ---
+        self.spotify_manager = SpotifyManager()
+        
+        # --- Exit Flag ---
+        self.should_exit = False
 
-        # Ensure we got a real string
-        if not query or not isinstance(query, str):
-            return  # No command detected
+        # --- Current App Mode ---
+        self.mode = None
 
-        query = query.lower()
+    def media_commands(self,query):
+        """Process voice commands"""
 
-        if 'wikipedia' in query:
-            self.speak('Searching Wikipedia')
-            query = query.replace('wikipedia', '').strip()
-            if not query:
-                self.speak("Please tell me what to search on Wikipedia.")
-                return
+        # If no mode is present, get user to launch one
+        if self.mode is None:
+            if 'launch youtube' in query:
+                self.speak('Launching Youtube')
+                self.mode = 'youtube'
+                webbrowser.open("https://www.youtube.com")
+                return False
+            elif 'launch spotify' in query:
+                self.speak('Launching Spotify')
+                self.mode = 'spotify'
+                subprocess.run(['open', '-a', 'Spotify'])
+                return False
 
+            elif 'exit' in query or 'stop' in query or 'wrap it up' in query:
+                self.speak('Shutting Down Sir')
+                return True
+            else:
+                self.speak("I didn't understand that command. Please try again.")
+                return False
+        
+        # If mode is not none, by pass getting user input
+        elif self.mode == 'youtube':
+            pass
+        elif self.mode == 'spotify':
+            return self.spotify_manager.spotify_commands(query)
+
+        return False
+
+    def perform_commands(self):
+
+        self.speak('Hello Rahfay What can i get started for you today')
+
+        # Pause wake-word detection
+        self.pause_flag.clear()
+
+        exit_program = False
+        command_count = 0
+        max_commands = 5 # Limit commands per session to prevent infinite loops
+
+        while not exit_program and command_count < max_commands:
+            query = self.listen()
+            if query:
+                exit_program = self.media_commands(query)
+                command_count += 1
+                # Reset for next wake word detection
+        self.pause_flag.set()
+        self.wake_word_detected = False
+        self.mode = None
+        
+        # Restart the wake word detection
+        self.wake_word_thread = threading.Thread(target=self.on_wake_word, daemon=True)
+        self.wake_word_thread.start()
+
+    def cleanup(self):
+        """Clean up resources"""
+        self.running = False
+        if hasattr(self, 'porcupine'):
+            self.porcupine.delete()
+        if hasattr(self, 'stream'):
             try:
-                results = wikipedia.summary(query, sentences=2)
-                self.speak(results)
-            except wikipedia.exceptions.DisambiguationError as e:
-                self.speak(f"Your query is too vague. Did you mean: {e.options[0]}?")
-            except wikipedia.exceptions.PageError:
-                self.speak("Sorry, I couldn't find anything on Wikipedia.")
-            except Exception as e:
-                print("Wikipedia error:", e)
-                self.speak("An error occurred while searching Wikipedia.")
+                self.stream.stop_stream()
+                self.stream.close()
+            except:
+                pass
+        if hasattr(self, 'pa'):
+            self.pa.terminate()
 
-        elif 'youtube' in query:
-            self.speak('Launching YouTube')
-            webbrowser.open('https://youtube.com')
-        elif 'white people playlist' in query:
-            self.speak('Loading white people playlist')
-            webbrowser.open('https://open.spotify.com/playlist/4IXEi7PbuVqKJHJOmPRrCv')
-        elif 'spotify dj' in query:
-            self.speak('Loading Spotify df')
-            webbrowser.open('https://open.spotify.com/search/dj')
-        elif 'puppy tail' in query:
-            webbrowser.open('https://www.youtube.com/watch?v=-pNGrPhuZ6M')
 
-    def get_active_app(self):
-        script = '''
-        tell application "System Events"
-            set frontApp to name of first application process whose frontmost is true
-            tell application process frontApp
-                if exists (window 1) then
-                    get title of window 1
-                else
-                    return ""
-                end if
-            end tell
-        end tell
-        '''
-        try:
-            result = subprocess.check_output(['osascript', '-e', script], stderr=subprocess.DEVNULL)
-            return result.decode('utf-8').strip().lower()
-        except subprocess.CalledProcessError:
-            return None
